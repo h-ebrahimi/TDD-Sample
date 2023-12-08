@@ -57,15 +57,16 @@ public class PortfolioTest
         var oneEuro = new Money(1, "EUR");
         var oneWon = new Money(1, "KRW");
         var portfolio = new Portfolio();
-        var expectedErrorMessage = "Missing exchange rate(s):[USD->Kalganid,EUR->Kalganid,KRW->Kalganid,]";
+        var expectedErrorMessage = "Missing exchange rate(s):[USD->Kalganid,EUR->Kalganid,KRW->Kalganid]";
 
         // Act
         portfolio.Add(oneDollar);
         portfolio.Add(oneEuro);
         portfolio.Add(oneWon);
-        var actualError = portfolio.Evaluate("Kalganid");
+        var action = () => portfolio.Evaluate("Kalganid");
 
         // Assert
-        Assert.Equal(actualError.Error, expectedErrorMessage);
+        var exception = Assert.ThrowsAny<Exception>(() => action());
+        Assert.Equal(expectedErrorMessage, exception.Message);
     }
 }
