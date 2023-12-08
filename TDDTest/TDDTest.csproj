@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TDD-Sample.csproj" />
-    <ProjectReference Include="..\TDD-Sample\TDD-Sample.csproj" />
   </ItemGroup>
 
 </Project>
