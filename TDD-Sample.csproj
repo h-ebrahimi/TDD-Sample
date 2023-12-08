@@ -8,4 +8,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="TDDTest\**" />
+    <EmbeddedResource Remove="TDDTest\**" />
+    <None Remove="TDDTest\**" />
+  </ItemGroup>
+
 </Project>
