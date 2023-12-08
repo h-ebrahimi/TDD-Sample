@@ -26,10 +26,10 @@ public struct Portfolio
 
     public readonly void Add(Money money) => moneys.Add(money);
 
-    private readonly (float amount, bool rateExist) Convert(Money money, string currency)
+    private readonly float Convert(Money money, string currency)
     {
         if (money.Currency.Equals(currency))
-            return (money.Amount, true);
+            return money.Amount;
 
         var key = money.Currency + "->" + currency;
         float rate = 0;
@@ -40,7 +40,7 @@ public struct Portfolio
         else
             failures.Add(key);
 
-        return (money.Amount * rate, rateExist);
+        return money.Amount * rate;
     }
 
     public readonly Money Evaluate(string currency)
@@ -48,7 +48,7 @@ public struct Portfolio
         float total = 0;
         foreach (Money money in moneys)
         {
-            var (amount, rateExist) = Convert(money, currency);
+            var amount = Convert(money, currency);
             total += amount;
         }
 
