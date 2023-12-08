@@ -3,10 +3,14 @@
 public struct Portfolio
 {
     private List<Money> moneys;
+    private List<string> failures;
     private readonly Dictionary<string, float> exchangeRates;
+
     public Portfolio()
     {
         moneys = new List<Money>();
+        failures = new List<string>();
+
         exchangeRates = new Dictionary<string, float>
         {
             { "EUR->USD", (float)1.2 },
@@ -22,16 +26,21 @@ public struct Portfolio
 
     public readonly void Add(Money money) => moneys.Add(money);
 
-    private readonly float Convert(Money money, string currency)
+    private readonly (float amount, bool rateExist) Convert(Money money, string currency)
     {
         if (money.Currency.Equals(currency))
-            return money.Amount;
+            return (money.Amount, true);
+
+        var key = money.Currency + "->" + currency;
+        float rate = 0;
+        var rateExist = exchangeRates.ContainsKey(key);
+
+        if (rateExist)
+            rate = exchangeRates[key];
         else
-        {
-            var key = money.Currency + "->" + currency;
-            var rate = exchangeRates[key];
-            return money.Amount * rate;
-        }
+            failures.Add(key);
+
+        return (money.Amount * rate, rateExist);
     }
 
     public readonly Money Evaluate(string currency)
@@ -39,9 +48,12 @@ public struct Portfolio
         float total = 0;
         foreach (Money money in moneys)
         {
-            var amount = Convert(money, currency);
+            var (amount, rateExist) = Convert(money, currency);
             total += amount;
         }
+
+        if (failures.Any()) throw new Exception($"Missing exchange rate(s):[{string.Join(",", failures)}]");
+
         return new Money(total, currency);
     }
 }
