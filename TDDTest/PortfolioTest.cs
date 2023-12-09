@@ -12,11 +12,13 @@ public class PortfolioTest
         var tenEuros = new Money(10, "EUR");
         var portfolio = new Portfolio();
         var expectedValue = new Money(17, "USD");
+        var bank = new Bank();
+        bank.AddExchangeRate("EUR", "USD", (float)1.2);
 
         // Act
         portfolio.Add(fiveDollars);
         portfolio.Add(tenEuros);
-        var actualValue = portfolio.Evaluate("USD");
+        var actualValue = portfolio.Evaluate(bank, "USD");
 
         // Assert         
         Assert.Equal(expectedValue.Amount, actualValue.Amount);
@@ -38,11 +40,15 @@ public class PortfolioTest
         var money2 = new Money(money2Amount, money2Currency);
         var portfolio = new Portfolio();
         var expectedValue = new Money(expectedAmount, expectedCurrency);
+        var bank = new Bank();
+        bank.AddExchangeRate("EUR", "USD", (float)1.2);
+        bank.AddExchangeRate("USD", "KRW", 1100);
+        bank.AddExchangeRate("IRR", "USD", (float)0.00000181);
 
         // Act
         portfolio.Add(money1);
         portfolio.Add(money2);
-        var actualValue = portfolio.Evaluate(evaluatedCurrency);
+        var actualValue = portfolio.Evaluate(bank, evaluatedCurrency);
 
         // Assert         
         Assert.Equal(expectedValue.Amount, actualValue.Amount);
@@ -59,11 +65,16 @@ public class PortfolioTest
         var portfolio = new Portfolio();
         var expectedErrorMessage = "Missing exchange rate(s):[USD->Kalganid,EUR->Kalganid,KRW->Kalganid]";
 
+        var bank = new Bank();
+        bank.AddExchangeRate("EUR", "USD", (float)1.2);
+        bank.AddExchangeRate("USD", "KRW", 1100);
+        bank.AddExchangeRate("IRR", "USD", (float)0.00000181);
+
         // Act
         portfolio.Add(oneDollar);
         portfolio.Add(oneEuro);
         portfolio.Add(oneWon);
-        var action = () => portfolio.Evaluate("Kalganid");
+        var action = () => portfolio.Evaluate(bank, "Kalganid");
 
         // Assert
         var exception = Assert.ThrowsAny<Exception>(() => action());
