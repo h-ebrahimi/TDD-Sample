@@ -11,7 +11,7 @@ public class BankTest
 
         var tenEuros = new Money(10, "EUR");
         var twelveDollars = new Money(12, "USD");
-        var thirteenDollars = new Money(12, "USD");
+        var thirteenDollars = new Money(13, "USD");
 
         // Act
         var convertedResult1 = bank.Convert(tenEuros, "USD");

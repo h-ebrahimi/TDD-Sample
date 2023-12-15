@@ -10,8 +10,11 @@ public struct Bank
 
     public void AddExchangeRate(string currencyFrom, string currencyTo, float rate)
     {
-        var key = currencyFrom + "->" + currencyTo;
-        exchangeRates.Add(key, rate);
+        var key = GetKey(currencyFrom, currencyTo);
+        if (exchangeRates.ContainsKey(key))
+            exchangeRates[key] = rate;
+        else
+            exchangeRates.Add(key, rate);
     }
 
     public (Money convertedMoney, bool canConvert) Convert(Money money, string currencyTo)
@@ -19,7 +22,7 @@ public struct Bank
         if (money.Currency.Equals(currencyTo))
             return (money, true);
 
-        var key = money.Currency + "->" + currencyTo;
+        var key = GetKey(money.Currency, currencyTo);
         float rate = 0;
         var rateExist = exchangeRates.ContainsKey(key);
 
@@ -29,19 +32,8 @@ public struct Bank
         return (new Money(money.Amount * rate, currencyTo), rateExist);
     }
 
-    //exchangeRates = new Dictionary<string, float>
-    //    {
-    //        { "EUR->USD", (float)1.2 },
-    //        { "USD->EUR", (float)0.82 },
-    //        { "USD->KRW", 1100 },
-    //        { "KRW->USD", (float)0.00090 },
-    //        { "EUR->KRW", 1344 },
-    //        { "KRW->EUR", (float)0.00073 },
-    //        { "USD->IRR", 550000 },
-    //        { "IRR->USD" , (float)0.00000181}
-    //    };
-
-
+    private static string GetKey(string currencyFrom, string currencyTo)
+    {
+        return currencyFrom + "->" + currencyTo;
+    }
 }
-
-
