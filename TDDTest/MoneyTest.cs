@@ -1,4 +1,3 @@
-using TDD_Sample;
 namespace TDDTest;
 
 public class MoneyTest
@@ -7,8 +6,8 @@ public class MoneyTest
     public void times_test_fact()
     {
         // Arrange
-        var fiver = new Money(amount: 5, currency: "USD");
-        var expectedResult = new Money(amount: 10, currency: "USD");
+        var fiver = new Dollar(amount: 5);
+        var expectedResult = new Dollar(amount: 10);
 
         // Act
         var actualResult = fiver.Times(2);
@@ -19,13 +18,15 @@ public class MoneyTest
     }
 
     [Theory]
-    [InlineData(5, "USD", 2, 10, "USD")]
-    [InlineData(10, "IRR", 2, 20, "IRR")]
-    public void times_test_inline_data(float amount, string currency, int times, float expectedAmount, string expectedCurrency)
+    [InlineData(5, Currency.USD, 2, 10, Currency.USD)]
+    [InlineData(10, Currency.IRR, 2, 20, Currency.IRR)]
+    public void times_test_inline_data(float amount, Currency currency, int times, float expectedAmount, Currency expectedCurrency)
     {
         // Arrange
-        var money = new Money(amount: amount, currency: currency);
-        var expectedResult = new Money(amount: expectedAmount, currency: expectedCurrency);
+        var money = Moneyfactory.GetMoney(currency: currency);
+        money.Amount = amount;
+        var expectedResult = Moneyfactory.GetMoney(expectedCurrency);
+        expectedResult.Amount = expectedAmount;
 
         // Act
         var actualResult = money.Times(times);

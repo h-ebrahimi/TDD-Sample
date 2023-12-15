@@ -2,31 +2,41 @@
 
 public struct Portfolio
 {
-    private List<Money> moneys;
+    private List<IMoney> moneys;
     private List<string> failures;
 
     public Portfolio()
     {
-        moneys = new List<Money>();
+        moneys = new List<IMoney>();
         failures = new List<string>();
     }
 
-    public readonly void Add(Money money) => moneys.Add(money);
+    public readonly void Add(IMoney money) => moneys.Add(money);
 
-    public readonly Money Evaluate(Bank bank, string currency)
+    public readonly IMoney Evaluate(Currency currency)
     {
-        float total = 0;
-        foreach (Money money in moneys)
+        IMoney? evaluatedMoney = null;
+        foreach (IMoney money in moneys)
         {
-            var (convertedMoney, canConvert) = bank.Convert(money, currency);
-            if (canConvert)
-                total += convertedMoney.Amount;
-            else
+            var (convertedMoney, canConvert) = money.Convert(currency);
+            if (!canConvert)
+            {
                 failures.Add($"{money.Currency}->{currency}");
+                continue;
+            }
+            switch (evaluatedMoney)
+            {
+                case null:
+                    evaluatedMoney = convertedMoney;
+                    break;
+                default:
+                    evaluatedMoney.Amount += convertedMoney.Amount;
+                    break;
+            }
         }
 
         if (failures.Any()) throw new Exception($"Missing exchange rate(s):[{string.Join(",", failures)}]");
 
-        return new Money(total, currency);
+        return evaluatedMoney!;
     }
 }

@@ -1,17 +1,41 @@
 ﻿namespace TDD_Sample;
 
-public struct Money
+public abstract class Money : IMoney
 {
-    public Money(float amount, string currency)
+    private float amount;
+    private Currency currency;
+    private readonly RateProvider rateProvider;
+
+    public Money(float amount, Currency currency)
     {
-        Amount = amount;
-        Currency = currency;
+        this.amount = amount;
+        this.currency = currency;
+        rateProvider = new RateProvider();
     }
 
-    public float Amount { get; }
-    public string Currency { get; }
+    public float Amount { set => amount = value; get => amount; }
+    public Currency Currency { set => currency = value; get => currency; }
 
-    public readonly Money Times(int multipler) => new Money(Amount * multipler, Currency);
 
-    public readonly Money Divide(int divisor) => new Money(Amount / divisor, Currency);
+    public abstract IMoney Divide(int divisor);
+
+    public abstract IMoney Times(int multipler);
+
+    public virtual (IMoney money, bool canConvert) Convert(Currency currencyTo)
+    {
+        if (Currency.Equals(currencyTo))
+            return (this, true);
+
+        var (rate, isExist) = rateProvider.GetExchangeRate(currency, currencyTo);
+        if (isExist)
+        {
+            var newMoney = Moneyfactory.GetMoney(currencyTo);
+            newMoney.Amount = amount * rate;
+            return (newMoney, isExist);
+        }
+        else
+        {
+            return (this, false);
+        }
+    }
 }
